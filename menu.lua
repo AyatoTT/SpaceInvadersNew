@@ -19,15 +19,20 @@ function scene:create(event)
   local sceneGroup = self.view
 
   -- создание фона
-  local background = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, display.contentWidth+200, display.contentHeight)
-  background:setFillColor(0.1, 0.1, 0.1)
+  local background = display.newImageRect("background.png", display.contentCenterX, display.contentCenterY, display.contentWidth+200, display.contentHeight)
+  background:setFillColor(1, 1, 1)
+  background.x = display.contentCenterX
+  background.y = display.contentCenterY
+  background.width = display.contentWidth + 250
+  background.height = display.contentHeight
 
-
-
+  local Sound = audio.loadSound("backsound.wav") -- звук попадания
+  audio.setVolume(0.02,{ channel = 2 })
+  audio.play(Sound)
 
 
   local playButton = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, 200,300)
-  playButton:setFillColor(1, 1, 1)
+  playButton:setFillColor(1, 1, 1,0.8)
   playButton.cornerRadius = 10
 
   local playButtonText = display.newText({
@@ -53,6 +58,29 @@ function scene:create(event)
   sceneGroup:insert(playButton)
   sceneGroup:insert(playButtonText)
   sceneGroup:insert(logo)
+
+  --if (phase == "did") then
+  --  -- проигрывание звука на канале 1
+  --  audio.play(soundEffect, { channel = 1, loops = -1 })
+  --end
+
+  function scene:hide(event)
+    local sceneGroup = self.view
+    local phase = event.phase
+
+    if (phase == "will") then
+      -- остановка звука на канале 1
+      audio.stop(1)
+      -- освобождение звука
+      audio.dispose(soundEffect)
+      soundEffect = nil
+    end
+
+
+
+
+  end
+
 end
 
 -- настройка обработчиков событий

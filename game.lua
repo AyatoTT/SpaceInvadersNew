@@ -51,7 +51,7 @@ function scene:create(event)
         local shieldMargin = 100 -- расстояние между объектами защиты
         for i = 1, shieldCount do
             local shieldX = (display.contentWidth / shieldCount) * i - (display.contentWidth / shieldCount / 2) -- расположение объекта защиты по оси X
-            local shieldY = display.contentHeight - 80 -- расположение объекта защиты по оси Y
+            local shieldY = display.contentHeight - 100 -- расположение объекта защиты по оси Y
             shield[i] = display.newRect(shieldX, shieldY, shieldWidth, shieldHeight)
             shield[i].isShield = true -- установка флага, указывающего на то, что объект является защитой
             physics.addBody(shield[i], "static") -- добавление физического тела к объекту защиты
@@ -89,13 +89,12 @@ function scene:create(event)
 
 
     local function movePlayer(event)
-        if (event.phase == "moved") then
-            local x = event.x -- позиция пальца по оси X
-            local y = event.y -- позиция пальца по оси Y
-            if (x > player.width / 2 - 120 and x < display.contentWidth + 120 - player.width / 2 and y > player.height / 2 and y < display.contentHeight - player.height / 2) then -- проверяем, не выходит ли игрок за границы экрана
-                transition.moveTo(player, { x = x, y = y, time = 0 }) -- перемещаем игрока в позицию пальца
-            end
+    if (event.phase == "moved") then
+        local x = event.x -- позиция пальца по оси X
+        if (x > player.width / 2 - 120 and x < display.contentWidth + 120 - player.width / 2) then -- проверяем, не выходит ли игрок за границы экрана
+            transition.moveTo(player, { x = x, y = player.y, time = 0 }) -- перемещаем игрока только по горизонтали
         end
+    end
     end
     Runtime:addEventListener("touch", movePlayer) -- добавляем обработчик события перемещения пальца по экрану
 
@@ -111,6 +110,7 @@ function scene:create(event)
         bullet.gravityScale = 0
         table.insert(bullets, bullet)
         audio.play(fireSound)
+        audio.setVolume(0.0007, { channel = 2 })
     end
 
     local function createBulletE()
@@ -123,7 +123,9 @@ function scene:create(event)
             physics.addBody(bulletE, "dynamic")
             bulletE.gravityScale = 0
             table.insert(bulletsE, bulletE)
-            audio.play(fireSound)
+            audio.setVolume(0.0007, { channel = 3 })
+            audio.play(fireSound,{ channel = 3 })
+
         end
     end
 
@@ -163,17 +165,19 @@ function scene:create(event)
             local obj2 = event.object2
             if ((obj1.isBullet and obj2.isBulletE) or (obj1.isBulletE and obj2.isBullet)) then
                 display.remove(obj1)
-                display.remove(obj2) for i = #bullets, 1, -1 do
+                display.remove(obj2)
+                for i = #bullets, 1, -1 do
                 if (bullets[i] == obj1 or bullets[i] == obj2) then
                     table.remove(bullets, i)
                     break
                 end
-            end for j = #bulletsE, 1, -1 do
-                if (bulletsE[j] == obj1) then
-                    table.remove(bulletsE, j)
+                end
+                for i = #bulletsE, 1, -1 do
+                if (bulletsE[i] == obj1 or bulletsE[i] == obj2) then
+                    table.remove(bulletsE, i)
                     break
                 end
-            end
+                end
             end
             if ((obj1.isBullet and obj2.isEnemy) or (obj1.isEnemy and obj2.isBullet)) then
                 display.remove(obj1)
@@ -336,11 +340,13 @@ function scene:create(event)
     local function updateBullets()
         for i = #bullets, 1, -1 do
             local bullet = bullets[i]
-            bullet.y = bullet.y - 10 -- двигаем пулю вверх
+            bullet.y = bullet.y - 10 -- двигаем пулю ввер
+
             if (bullet.y < -20) then
                 display.remove(bullet)
                 table.remove(bullets, i)
             end
+
         end
     end
 
