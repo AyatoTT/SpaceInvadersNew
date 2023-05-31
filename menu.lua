@@ -19,12 +19,12 @@ function scene:create(event)
   local sceneGroup = self.view
 
   -- создание фона
-  local background = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
+  local background = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, display.contentWidth+200, display.contentHeight)
   background:setFillColor(0.1, 0.1, 0.1)
 
   -- создание кнопки "Play"
-  local playButton = display.newText(sceneGroup, "Play", display.contentCenterX, display.contentCenterY, native.systemFont, 48)
-  playButton:setFillColor(1, 1, 1)
+  local playButton = display.newText(sceneGroup, "Play", display.contentCenterX, display.contentCenterY, native.systemFont, 28)
+  playButton:setFillColor(0, 1, 1)
   playButton:addEventListener("touch", onPlayButtonTap)
 
   -- добавление объектов в сцену

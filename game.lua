@@ -331,30 +331,7 @@ function scene:create(event)
             end
         end
     end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     -- Функция обновления пуль
     local function updateBullets()
         for i = #bullets, 1, -1 do
