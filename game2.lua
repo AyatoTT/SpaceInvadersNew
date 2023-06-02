@@ -10,44 +10,33 @@ local physics = require("physics")
 physics.start()
 physics.setGravity(0,0)
 
---function scene:hide( event )
---	local sceneGroup = self.view
---	local phase = event.phase
---	if ( phase == "will" ) then
---
---	elseif ( phase == "did" ) then
---
---        composer.removeScene( "game" )
---		-- выполняется после скрытия сцены
---	end
---end
+
 
 
 
 function scene:create(event)
-    local sceneGroup = self.view
     physics.start()
-    local player-- игрок
+    local player -- игрок
     local bullets = {} -- массив пуль
     local bulletsE = {} -- массив пуль
     local enemies = {} -- массив инопланетных кораблей
-    local background = display.newImageRect(sceneGroup,"background.png",1920,1080 )
+    local background = display.newImageRect( "background.png",1920,1080 )
     background.x = display.contentCenterX
     background.y = display.contentCenterY
     background.width = display.contentWidth + 250
     background.height = display.contentHeight
-    local score = composer.getVariable("scorex") -- очки игрока
+    local score = 0 -- очки игрока
     local lives = 3 -- количество жизней игрока
-    local livesText = display.newText(sceneGroup,"Lives: " .. lives, display.contentWidth - 80, 20, native.systemFont, 20)
+    local livesText = display.newText("Lives: " .. lives, display.contentWidth - 80, 20, native.systemFont, 20)
     livesText:setFillColor(1, 1, 1) -- установка цвета текста
-    local scoreText = display.newText(sceneGroup,"Score: " .. score, 10, 20, native.systemFont, 18)
+    local scoreText = display.newText("Score: " .. score, 10, 20, native.systemFont, 18)
     local fireSound = audio.loadSound("fire.wav") -- звук выстрела
     local hitSound = audio.loadSound("hit.wav") -- звук попадания
     audio.setVolume(0.0007, { channel = 1 })
     local shield = {} -- массив объектов защиты
     local shieldWidth = 30
     local shieldHeight = 20
-
+    local go = 1
     local enemyMoveDirection = 1 -- начинаем движение вправо
     local enemyMoveCount = 0 -- счетчик для изменения направления движения
     local enemyMoveLimit = 4 -- сколько раз нужно изменить направление, прежде чем спуститься на несколько пикселей вниз
@@ -82,7 +71,7 @@ function scene:create(event)
         for i = 1, shieldCount do
             local shieldX = (display.contentWidth / shieldCount) * i - (display.contentWidth / shieldCount / 2) -- расположение объекта защиты по оси X
             local shieldY = display.contentHeight - 100 -- расположение объекта защиты по оси Y
-            shield[i] = display.newRect(sceneGroup,shieldX, shieldY, shieldWidth, shieldHeight)
+            shield[i] = display.newRect(shieldX, shieldY, shieldWidth, shieldHeight)
             shield[i].isShield = true -- установка флага, указывающего на то, что объект является защитой
             physics.addBody(shield[i], "static") -- добавление физического тела к объекту защиты
         end
@@ -100,13 +89,12 @@ function scene:create(event)
         --player.gravityScale = 0
         player.isSensor = true
         player.isPlayer = true
-        sceneGroup:insert(player)
     end
 
     -- Функция создания инопланетных кораблей
     local function createEnemies()
         for i = 1, 10 do
-            local enemy = display.newImageRect(sceneGroup,"enemy.png", 35, 35)
+            local enemy = display.newImageRect("enemy.png", 35, 35)
             enemy.x = i * 60
             enemy.y = 50
             physics.addBody(enemy, "dynamic", { radius = 25 })
@@ -119,7 +107,7 @@ function scene:create(event)
 
 
 
-    local function movePlayer(event)
+    local function movePlayer2(event)
     if (event.phase == "moved") then
         local x = event.x -- позиция пальца по оси X
         if (x > player.width / 2 - 120 and x < display.contentWidth + 120 - player.width / 2) then -- проверяем, не выходит ли игрок за границы экрана
@@ -127,13 +115,13 @@ function scene:create(event)
         end
     end
     end
-    Runtime:addEventListener("touch", movePlayer) -- добавляем обработчик события перемещения пальца по экрану
+    Runtime:addEventListener("touch", movePlayer2) -- добавляем обработчик события перемещения пальца по экрану
 
 
 
     -- Функция создания пули
     local function createBullet()
-        local bullet = display.newImageRect(sceneGroup,"bullet.png", 10, 20)
+        local bullet = display.newImageRect("bullet.png", 10, 20)
         bullet.x = player.x
         bullet.y = player.y - 30
         bullet.isBullet = true
@@ -147,7 +135,7 @@ function scene:create(event)
     local function createBulletE()
         for i = 1, #enemies do
             local enemy = enemies[i]
-            local bulletE = display.newImageRect(sceneGroup,"bulletE.png", 10, 20)
+            local bulletE = display.newImageRect("bulletE.png", 10, 20)
             bulletE.x = enemy.x
             bulletE.y = enemy.y + 50
             bulletE.isBulletE = true
@@ -246,10 +234,7 @@ function scene:create(event)
                     livesText.text = "Lives: " .. lives
                     if (phase == "did") then
 
-                        timer.cancel(myTimer)
-                        composer.setVariable("scorex", score)
-                        Runtime:removeEventListener("enterFrame", gameLoop)
-                        composer.gotoScene("gameover")
+
 
                     end
                     --clearArrays()
@@ -420,19 +405,14 @@ function scene:create(event)
             --end
             enemy.x = enemy.x + math.sin(enemy.y * 0.05)  -- двигаем корабль вправо-влево
             enemy.y = enemy.y + 0.1 -- двигаем корабль вниз
-            if (enemy.y > display.contentHeight - 135) then
+            if (enemy.y > display.contentHeight + 135) then
                 display.remove(enemy)
                 table.remove(enemies, i)
                 lives = lives - 1 -- уменьшаем количество жизней игрока при пропуске корабля
                 livesText.text = "Lives: " .. lives
                 if (lives <= 0) then
                     if (phase == "did") then
-                        timer.cancel(myTimer)
-                        composer.setVariable("scorex", score)
-                        Runtime:removeEventListener("enterFrame", gameLoop)
-                        Runtime:removeEventListener("touch", movePlayer)
-                        composer.removeScene("game")
-                        composer.gotoScene("gameover")
+
 
                     end
 
@@ -448,15 +428,15 @@ function scene:create(event)
     local function gameLoop()
         if (player.isAlive) then
             updateBullets()
-            --updateBulletsE()
+            updateBulletsE()
             updateEnemies()
         end
     end
 
     -- Функция выпуска пуль
     local function onFire()
-        if math.random(1, 100) <= 20 then -- вероятность выстрела = 1%
-            --createBulletE(enemy) -- запускаем выстрел для данного врага
+        if math.random(1, 100) <= 50 then -- вероятность выстрела = 50%
+            createBulletE(enemy) -- запускаем выстрел для данного врага
         end
         if (player.isAlive) then
             timer.performWithDelay(250,createBullet(),1)
@@ -481,16 +461,17 @@ function scene:create(event)
     local function checkEnemies()
 
         if #enemies == 0 then -- если количество врагов равно нулю
-            timer.cancel(myTimer)
-            composer.setVariable("scorex", score)
-            Runtime:removeEventListener("enterFrame", gameLoop)
-            composer.gotoScene("gameover")
-            if  lives > 0 then
-            timer.cancel(myTimer)
-            composer.setVariable("scorex", score)
-            Runtime:removeEventListener("touch", movePlayer)
-            Runtime:removeEventListener("enterFrame", gameLoop)
-            composer.gotoScene("game2")
+            if go == 0 then
+                physics.pause()
+                timer.cancel(myTimer)
+                 composer.removeScene( "game" )
+                composer.gotoScene("menu")
+
+
+            elseif go == 1 then
+                createEnemies()
+                go = 0
+
             end
         end
     end
@@ -503,20 +484,9 @@ function scene:create(event)
     initGame()
 end
 
-
-
-function scene:destroy(event)
-  local phase = event.phase
-  if phase == "will" then
-    -- Сцена будет уничтожена, переходим на сцену "menu"
-
-  end
-end
-
-scene:addEventListener("destroy", scene)
 scene:addEventListener("create", scene)
 
---scene:addEventListener( "hide", scene )
+
 
 
 return scene
