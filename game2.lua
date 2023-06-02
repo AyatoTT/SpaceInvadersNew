@@ -10,17 +10,38 @@ local physics = require("physics")
 physics.start()
 physics.setGravity(0,0)
 
+function scene:hide( event )
+	local sceneGroup = self.view
+	local phase = event.phase
+	if ( phase == "will" ) then
 
+	elseif ( phase == "did" ) then
+
+        composer.removeScene( "game2" )
+		-- выполняется после скрытия сцены
+	end
+end
+-- Отображение сцены
+function scene:show( event )
+	local sceneGroup = self.view
+	local phase = event.phase
+	if ( phase == "will" ) then
+		--Сцена выключена но скоро появится на экран
+	elseif ( phase == "did" ) then
+		-- Сцена полностью загружена на экран
+	end
+end
 
 
 
 function scene:create(event)
     physics.start()
+
     local player -- игрок
     local bullets = {} -- массив пуль
     local bulletsE = {} -- массив пуль
     local enemies = {} -- массив инопланетных кораблей
-    local background = display.newImageRect( "background.png",1920,1080 )
+    local background = display.newImageRect("background.png",1920,1080 )
     background.x = display.contentCenterX
     background.y = display.contentCenterY
     background.width = display.contentWidth + 250
@@ -36,17 +57,6 @@ function scene:create(event)
     local shield = {} -- массив объектов защиты
     local shieldWidth = 30
     local shieldHeight = 20
-    local go = 1
-    local enemyMoveDirection = 1 -- начинаем движение вправо
-    local enemyMoveCount = 0 -- счетчик для изменения направления движения
-    local enemyMoveLimit = 4 -- сколько раз нужно изменить направление, прежде чем спуститься на несколько пикселей вниз
-    local enemyMoveDown = false -- спускать врагов вниз или нет
-    local enemyMoveDownCount = 0 -- счетчик для спуска врагов вниз
-    local enemyMoveDownLimit = 10 -- сколько пикПродолжение кода:
-
-    -- переменные для стрельбы врагов
-    local enemyShootTimer = nil -- таймер для стрельбы врагов
-    local enemyShootDelay = 1000 -- задержка между выстрелами врагов (в миллисекундах)
 
     function clearArrays()
     for i = #bullets, 1, -1 do
@@ -233,13 +243,14 @@ function scene:create(event)
                     --lives = 3
                     livesText.text = "Lives: " .. lives
                     if (phase == "did") then
-                        timer.cancel(myTimer)
+
                         composer.setVariable("scorex", score)
                         Runtime:removeEventListener("enterFrame", gameLoop)
                         composer.gotoScene("gameover")
 
 
                     end
+
                     --clearArrays()
 
                     -- здесь может быть код для окончания игры
@@ -322,12 +333,14 @@ function scene:create(event)
                     --lives = 3
                     livesText.text = "Lives: " .. lives
                     if (phase == "did") then
-                        timer.cancel(myTimer)
+                        print("gfdgf")
                         composer.setVariable("scorex", score)
                         Runtime:removeEventListener("enterFrame", gameLoop)
                         composer.gotoScene("gameover")
 
                     end
+                      --timer.cancel(myTimer2)
+
                     --clearArrays()
 
                     -- здесь может быть код для окончания игры
@@ -418,11 +431,11 @@ function scene:create(event)
                 livesText.text = "Lives: " .. lives
                 if (lives <= 0) then
                     if (phase == "did") then
-                        timer.cancel(myTimer)
+                        timer.cancel(myTimer2)
                         composer.setVariable("scorex", score)
                         Runtime:removeEventListener("enterFrame", gameLoop)
                         Runtime:removeEventListener("touch", movePlayer)
-                        composer.removeScene("game")
+                        composer.removeScene("game2")
                         composer.gotoScene("gameover")
 
                     end
@@ -446,7 +459,7 @@ function scene:create(event)
 
     -- Функция выпуска пуль
     local function onFire()
-        if math.random(1, 100) <= 75 then -- вероятность выстрела = 1%
+        if math.random(1, 100) <= 40 then -- вероятность выстрела = 40%
             createBulletE(enemy) -- запускаем выстрел для данного врага
         end
         if (player.isAlive) then
@@ -454,7 +467,7 @@ function scene:create(event)
             --timer.performWithDelay(250,createBulletE(),1)
         end
     end
-    local myTimer = timer.performWithDelay(550,onFire,0)
+    local myTimer2 = timer.performWithDelay(550,onFire,0)
 
 
     -- Функция инициализации игры
@@ -471,22 +484,26 @@ function scene:create(event)
 
     local function checkEnemies()
 
-        if #enemies == 0 then -- если количество врагов равно нулю
-            if go == 0 then
-                --physics.pause()
-                --timer.cancel(myTimer)
-                 composer.removeScene( "game" )
-                composer.gotoScene("menu")
+       if #enemies == 0 then -- если количество врагов равно нулю
+           if lives <= 0 then
+               timer.cancel(myTimer2)
+               Runtime:addEventListener("enterFrame", checkEnemies)
+               composer.setVariable("scorex", score)
+               Runtime:removeEventListener("enterFrame", gameLoop)
+               composer.gotoScene("gameover")
 
-
-            elseif go == 0 then
-                createEnemies()
-                go = 0
-                --physics.pause()
-                --timer.cancel(myTimer)
-                composer.removeScene( "game" )
-                composer.gotoScene("menu")
-            end
+           end
+            if  lives > 0 then
+                Runtime:addEventListener("enterFrame", checkEnemies)
+                timer.cancel(myTimer2)
+                composer.setVariable("scorex", score)
+                Runtime:removeEventListener("touch", movePlayer)
+                Runtime:removeEventListener("enterFrame", gameLoop)
+                 Runtime:removeEventListener("collision", onCollision)
+                Runtime:removeEventListener("collision", onCollisionE)
+                composer.gotoScene("gameover")
+                display.remove(player)
+                end
         end
     end
 
@@ -500,8 +517,8 @@ end
 
 scene:addEventListener("create", scene)
 
-
-
+scene:addEventListener( "hide", scene )
+scene:addEventListener( "show", scene )
 
 return scene
 

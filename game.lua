@@ -4,24 +4,31 @@
 
 local composer = require("composer")
 
-local scene = composer.newScene()
+local scene = composer.newScene("game")
 
 local physics = require("physics")
 physics.start()
 physics.setGravity(0,0)
 
---function scene:hide( event )
---	local sceneGroup = self.view
---	local phase = event.phase
---	if ( phase == "will" ) then
---
---	elseif ( phase == "did" ) then
---
---        composer.removeScene( "game" )
---		-- выполняется после скрытия сцены
---	end
---end
+function scene:hide( event )
+	local sceneGroup = self.view
+	local phase = event.phase
+	if ( phase == "will" ) then
 
+	elseif ( phase == "did" ) then
+
+        composer.removeScene( "game" )
+		-- выполняется после скрытия сцены
+	end
+end
+
+function scene:destroy(event)
+  local phase = event.phase
+  if phase == "will" then
+    -- Сцена будет уничтожена, переходим на сцену "gameover"
+
+  end
+end
 
 
 function scene:create(event)
@@ -48,16 +55,7 @@ function scene:create(event)
     local shieldWidth = 30
     local shieldHeight = 20
 
-    local enemyMoveDirection = 1 -- начинаем движение вправо
-    local enemyMoveCount = 0 -- счетчик для изменения направления движения
-    local enemyMoveLimit = 4 -- сколько раз нужно изменить направление, прежде чем спуститься на несколько пикселей вниз
-    local enemyMoveDown = false -- спускать врагов вниз или нет
-    local enemyMoveDownCount = 0 -- счетчик для спуска врагов вниз
-    local enemyMoveDownLimit = 10 -- сколько пикПродолжение кода:
 
-    -- переменные для стрельбы врагов
-    local enemyShootTimer = nil -- таймер для стрельбы врагов
-    local enemyShootDelay = 1000 -- задержка между выстрелами врагов (в миллисекундах)
 
     function clearArrays()
     for i = #bullets, 1, -1 do
@@ -434,7 +432,7 @@ function scene:create(event)
                         composer.removeScene("game")
                         composer.gotoScene("gameover")
                         display.remove(player)
-                        display.remove(player)
+
                     end
 
 
@@ -482,11 +480,16 @@ function scene:create(event)
     local function checkEnemies()
 
         if #enemies == 0 then -- если количество врагов равно нулю
-            timer.cancel(myTimer)
-            composer.setVariable("scorex", score)
-            Runtime:removeEventListener("enterFrame", gameLoop)
-            composer.gotoScene("gameover")
+            if lives <= 0 then
+                Runtime:addEventListener("enterFrame", checkEnemies)
+                timer.cancel(myTimer)
+                composer.setVariable("scorex", score)
+                Runtime:removeEventListener("enterFrame", gameLoop)
+                --composer.gotoScene("gameover")
+
+            end
             if  lives > 0 then
+            Runtime:removeEventListener("enterFrame", checkEnemies)
             timer.cancel(myTimer)
             composer.setVariable("scorex", score)
             Runtime:removeEventListener("touch", movePlayer)
@@ -507,19 +510,13 @@ end
 
 
 
-function scene:destroy(event)
-  local phase = event.phase
-  if phase == "will" then
-    -- Сцена будет уничтожена, переходим на сцену "menu"
 
-  end
-end
 
-scene:addEventListener("destroy", scene)
+
 scene:addEventListener("create", scene)
 
---scene:addEventListener( "hide", scene )
-
+scene:addEventListener( "hide", scene )
+scene:addEventListener("destroy", scene)
 
 return scene
 
