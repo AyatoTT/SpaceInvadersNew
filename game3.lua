@@ -250,7 +250,7 @@ function scene:create(event)
                         composer.setVariable("scorex", score)
                         Runtime:removeEventListener("enterFrame", gameLoop)
                         composer.gotoScene("gameover")
-                        display.remove(player)
+
                     end
                     --clearArrays()
 
@@ -382,7 +382,7 @@ function scene:create(event)
             end
         end
     end
-    
+
     -- Функция обновления пуль
     local function updateBullets()
         for i = #bullets, 1, -1 do
@@ -433,8 +433,7 @@ function scene:create(event)
                         Runtime:removeEventListener("touch", movePlayer)
                         composer.removeScene("game")
                         composer.gotoScene("gameover")
-                        display.remove(player)
-                        display.remove(player)
+
                     end
 
 
@@ -492,7 +491,6 @@ function scene:create(event)
             Runtime:removeEventListener("touch", movePlayer)
             Runtime:removeEventListener("enterFrame", gameLoop)
             composer.gotoScene("game2")
-            display.remove(player)
             end
         end
     end

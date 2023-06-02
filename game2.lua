@@ -107,7 +107,7 @@ function scene:create(event)
 
 
 
-    local function movePlayer2(event)
+    local function movePlayer(event)
     if (event.phase == "moved") then
         local x = event.x -- позиция пальца по оси X
         if (x > player.width / 2 - 120 and x < display.contentWidth + 120 - player.width / 2) then -- проверяем, не выходит ли игрок за границы экрана
@@ -115,7 +115,7 @@ function scene:create(event)
         end
     end
     end
-    Runtime:addEventListener("touch", movePlayer2) -- добавляем обработчик события перемещения пальца по экрану
+    Runtime:addEventListener("touch", movePlayer) -- добавляем обработчик события перемещения пальца по экрану
 
 
 
@@ -233,7 +233,10 @@ function scene:create(event)
                     --lives = 3
                     livesText.text = "Lives: " .. lives
                     if (phase == "did") then
-
+                        timer.cancel(myTimer)
+                        composer.setVariable("scorex", score)
+                        Runtime:removeEventListener("enterFrame", gameLoop)
+                        composer.gotoScene("gameover")
 
 
                     end
@@ -319,7 +322,10 @@ function scene:create(event)
                     --lives = 3
                     livesText.text = "Lives: " .. lives
                     if (phase == "did") then
-
+                        timer.cancel(myTimer)
+                        composer.setVariable("scorex", score)
+                        Runtime:removeEventListener("enterFrame", gameLoop)
+                        composer.gotoScene("gameover")
 
                     end
                     --clearArrays()
@@ -367,7 +373,7 @@ function scene:create(event)
             end
         end
     end
-    
+
     -- Функция обновления пуль
     local function updateBullets()
         for i = #bullets, 1, -1 do
@@ -405,14 +411,19 @@ function scene:create(event)
             --end
             enemy.x = enemy.x + math.sin(enemy.y * 0.05)  -- двигаем корабль вправо-влево
             enemy.y = enemy.y + 0.1 -- двигаем корабль вниз
-            if (enemy.y > display.contentHeight + 135) then
+            if (enemy.y > display.contentHeight + 50) then
                 display.remove(enemy)
                 table.remove(enemies, i)
                 lives = lives - 1 -- уменьшаем количество жизней игрока при пропуске корабля
                 livesText.text = "Lives: " .. lives
                 if (lives <= 0) then
                     if (phase == "did") then
-
+                        timer.cancel(myTimer)
+                        composer.setVariable("scorex", score)
+                        Runtime:removeEventListener("enterFrame", gameLoop)
+                        Runtime:removeEventListener("touch", movePlayer)
+                        composer.removeScene("game")
+                        composer.gotoScene("gameover")
 
                     end
 
@@ -435,7 +446,7 @@ function scene:create(event)
 
     -- Функция выпуска пуль
     local function onFire()
-        if math.random(1, 100) <= 50 then -- вероятность выстрела = 50%
+        if math.random(1, 100) <= 75 then -- вероятность выстрела = 1%
             createBulletE(enemy) -- запускаем выстрел для данного врага
         end
         if (player.isAlive) then
@@ -462,16 +473,19 @@ function scene:create(event)
 
         if #enemies == 0 then -- если количество врагов равно нулю
             if go == 0 then
-                physics.pause()
-                timer.cancel(myTimer)
+                --physics.pause()
+                --timer.cancel(myTimer)
                  composer.removeScene( "game" )
                 composer.gotoScene("menu")
 
 
-            elseif go == 1 then
+            elseif go == 0 then
                 createEnemies()
                 go = 0
-
+                --physics.pause()
+                --timer.cancel(myTimer)
+                composer.removeScene( "game" )
+                composer.gotoScene("menu")
             end
         end
     end
