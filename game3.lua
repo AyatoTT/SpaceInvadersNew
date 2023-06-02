@@ -17,7 +17,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 
-        composer.removeScene( "game2" )
+        composer.removeScene( "game3" )
 		-- выполняется после скрытия сцены
 	end
 end
@@ -246,7 +246,7 @@ function scene:create(event)
                     Runtime:removeEventListener("enterFrame", gameLoop)
                     Runtime:removeEventListener("collision", onCollision)
                     Runtime:removeEventListener("collision", onCollisionE)
-                    composer.removeScene("game2")
+                    composer.removeScene("game3")
                     collectgarbage()
                     composer.gotoScene("gameover")
                     --composer.showOverlay("menu")
@@ -274,7 +274,7 @@ function scene:create(event)
         end
         if (player.isAlive) then
             timer.performWithDelay(250,createBullet(),1)
-            --timer.performWithDelay(250,createBulletE(),1)
+            timer.performWithDelay(250,createBulletE(),1)
         end
     end
     local myTimer2 = timer.performWithDelay(550,onFire,0)
@@ -346,7 +346,7 @@ function scene:create(event)
                     Runtime:removeEventListener("enterFrame", gameLoop)
                     Runtime:removeEventListener("collision", onCollision)
                     --Runtime:removeEventListener("collision", onCollisionE)
-                    composer.removeScene("game2")
+                    composer.removeScene("game3")
                     collectgarbage()
                     composer.gotoScene("gameover")
                     --composer.showOverlay("menu")
@@ -443,7 +443,7 @@ function scene:create(event)
                     Runtime:removeEventListener("enterFrame", gameLoop )
                     Runtime:removeEventListener("collision", onCollision)
                     Runtime:removeEventListener("collision", onCollisionE)
-                    composer.removeScene("game2")
+                    composer.removeScene("game3")
                     collectgarbage()
                     composer.gotoScene("gameover")
                     --composer.showOverlay("menu")
@@ -530,9 +530,9 @@ function scene:create(event)
                 Runtime:removeEventListener("enterFrame", gameLoop)
                  Runtime:removeEventListener("collision", onCollision)
                 Runtime:removeEventListener("collision", onCollisionE)
-                composer.removeScene("game2")
+                composer.removeScene("game3")
                 collectgarbage()
-                composer.gotoScene("game3")
+                --composer.gotoScene("game3")
                 --composer.showOverlay("menu")
                 display.remove(player)
                 end
