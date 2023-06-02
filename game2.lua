@@ -36,21 +36,21 @@ end
 
 function scene:create(event)
     physics.start()
-
+    local sceneGroup = self.view
     local player -- игрок
     local bullets = {} -- массив пуль
     local bulletsE = {} -- массив пуль
     local enemies = {} -- массив инопланетных кораблей
-    local background = display.newImageRect("background.png",1920,1080 )
+    local background = display.newImageRect(sceneGroup,"background.png",1920,1080 )
     background.x = display.contentCenterX
     background.y = display.contentCenterY
     background.width = display.contentWidth + 250
     background.height = display.contentHeight
     local score = 0 -- очки игрока
     local lives = 3 -- количество жизней игрока
-    local livesText = display.newText("Lives: " .. lives, display.contentWidth - 80, 20, native.systemFont, 20)
+    local livesText = display.newText(sceneGroup,"Lives: " .. lives, display.contentWidth - 80, 20, native.systemFont, 20)
     livesText:setFillColor(1, 1, 1) -- установка цвета текста
-    local scoreText = display.newText("Score: " .. score, 10, 20, native.systemFont, 18)
+    local scoreText = display.newText(sceneGroup,"Score: " .. score, 10, 20, native.systemFont, 18)
     local fireSound = audio.loadSound("fire.wav") -- звук выстрела
     local hitSound = audio.loadSound("hit.wav") -- звук попадания
     audio.setVolume(0.0007, { channel = 1 })
@@ -81,7 +81,7 @@ function scene:create(event)
         for i = 1, shieldCount do
             local shieldX = (display.contentWidth / shieldCount) * i - (display.contentWidth / shieldCount / 2) -- расположение объекта защиты по оси X
             local shieldY = display.contentHeight - 100 -- расположение объекта защиты по оси Y
-            shield[i] = display.newRect(shieldX, shieldY, shieldWidth, shieldHeight)
+            shield[i] = display.newRect(sceneGroup,shieldX, shieldY, shieldWidth, shieldHeight)
             shield[i].isShield = true -- установка флага, указывающего на то, что объект является защитой
             physics.addBody(shield[i], "static") -- добавление физического тела к объекту защиты
         end
@@ -91,7 +91,7 @@ function scene:create(event)
 
     -- Функция создания игрока
     local function createPlayer()
-        player = display.newImageRect("player.png", 35, 35)
+        player = display.newImageRect(sceneGroup,"player.png", 35, 35)
         player.x = display.contentCenterX
         player.y = display.contentHeight - 50 -- начальные координаты игрока
         player.isAlive = true -- флаг, указывающий, жив ли игрок
@@ -104,7 +104,7 @@ function scene:create(event)
     -- Функция создания инопланетных кораблей
     local function createEnemies()
         for i = 1, 10 do
-            local enemy = display.newImageRect("enemy.png", 35, 35)
+            local enemy = display.newImageRect(sceneGroup,"enemy.png", 35, 35)
             enemy.x = i * 60
             enemy.y = 50
             physics.addBody(enemy, "dynamic", { radius = 25 })
@@ -131,7 +131,7 @@ function scene:create(event)
 
     -- Функция создания пули
     local function createBullet()
-        local bullet = display.newImageRect("bullet.png", 10, 20)
+        local bullet = display.newImageRect(sceneGroup,"bullet.png", 10, 20)
         bullet.x = player.x
         bullet.y = player.y - 30
         bullet.isBullet = true
@@ -145,7 +145,7 @@ function scene:create(event)
     local function createBulletE()
         for i = 1, #enemies do
             local enemy = enemies[i]
-            local bulletE = display.newImageRect("bulletE.png", 10, 20)
+            local bulletE = display.newImageRect(sceneGroup,"bulletE.png", 10, 20)
             bulletE.x = enemy.x
             bulletE.y = enemy.y + 50
             bulletE.isBulletE = true
@@ -188,7 +188,98 @@ function scene:create(event)
 
 
 
-    local function onCollision(event)
+
+
+
+
+    -- Функция обновления пуль
+    local function updateBullets()
+        for i = #bullets, 1, -1 do
+            local bullet = bullets[i]
+            bullet.y = bullet.y - 10 -- двигаем пулю ввер
+
+            if (bullet.y < -20) then
+                display.remove(bullet)
+                table.remove(bullets, i)
+            end
+
+        end
+    end
+
+    local function updateBulletsE()
+        for i = #bulletsE, 1, -1 do
+            local bulletE = bulletsE[i]
+            bulletE.y = bulletE.y + 2 -- двигаем пулю вниз
+            if (bulletE.y < 20) then
+                display.remove(bulletE)
+                table.remove(bulletsE, i)
+            end
+        end
+    end
+
+
+
+
+    -- Функция обновления инопланетных кораблей
+    local function updateEnemies()
+        for i = #enemies, 1, -1 do
+            local enemy = enemies[i]
+            --if (enemyMoveDown) then
+            --enemy.y = enemy.y + 10
+            --end
+            enemy.x = enemy.x + math.sin(enemy.y * 0.05)  -- двигаем корабль вправо-влево
+            enemy.y = enemy.y + 0.1 -- двигаем корабль вниз
+            if (enemy.y > display.contentHeight + 50) then
+                display.remove(enemy)
+                table.remove(enemies, i)
+                lives = lives - 1 -- уменьшаем количество жизней игрока при пропуске корабля
+                livesText.text = "Lives: " .. lives
+                if (lives <= 0) then
+                    if (phase == "did") then
+
+
+                    end
+                    Runtime:removeEventListener("enterFrame", checkEnemies)
+                    --timer.cancel(myTimer2)
+                    composer.setVariable("scorex", score)
+                    Runtime:removeEventListener("touch", movePlayer)
+                    Runtime:removeEventListener("enterFrame", gameLoop)
+                    Runtime:removeEventListener("collision", onCollision)
+                    Runtime:removeEventListener("collision", onCollisionE)
+                    composer.removeScene("game2")
+                    collectgarbage()
+                    composer.gotoScene("gameover")
+                    --composer.showOverlay("menu")
+                    display.remove(player)
+                    --player.isAlive = false -- игрок погиб
+                    -- здесь может быть код для окончания игры
+                end
+            end
+        end
+    end
+
+    -- Функция обновления игры
+    local function gameLoop()
+        if (player.isAlive) then
+            updateBullets()
+            updateBulletsE()
+            updateEnemies()
+        end
+    end
+
+    -- Функция выпуска пуль
+    local function onFire()
+        if math.random(1, 100) <= 40 then -- вероятность выстрела = 40%
+            createBulletE(enemy) -- запускаем выстрел для данного врага
+        end
+        if (player.isAlive) then
+            timer.performWithDelay(250,createBullet(),1)
+            --timer.performWithDelay(250,createBulletE(),1)
+        end
+    end
+    local myTimer2 = timer.performWithDelay(550,onFire,0)
+
+ local function onCollision(event)
         if (event.phase == "began") then
             local obj1 = event.object1
             local obj2 = event.object2
@@ -244,13 +335,22 @@ function scene:create(event)
                     livesText.text = "Lives: " .. lives
                     if (phase == "did") then
 
-                        composer.setVariable("scorex", score)
-                        Runtime:removeEventListener("enterFrame", gameLoop)
-                        composer.gotoScene("gameover")
+
 
 
                     end
-
+                    Runtime:removeEventListener("enterFrame", checkEnemies)
+                    timer.cancel(myTimer2)
+                    composer.setVariable("scorex", score)
+                    Runtime:removeEventListener("touch", movePlayer)
+                    Runtime:removeEventListener("enterFrame", gameLoop)
+                    Runtime:removeEventListener("collision", onCollision)
+                    --Runtime:removeEventListener("collision", onCollisionE)
+                    composer.removeScene("game2")
+                    collectgarbage()
+                    composer.gotoScene("gameover")
+                    --composer.showOverlay("menu")
+                    display.remove(player)
                     --clearArrays()
 
                     -- здесь может быть код для окончания игры
@@ -297,7 +397,7 @@ function scene:create(event)
         end
     end
 
-    local function onCollisionE(event)
+ local function onCollisionE(event)
         if (event.phase == "began") then
             local obj1 = event.object1
             local obj2 = event.object2
@@ -333,12 +433,21 @@ function scene:create(event)
                     --lives = 3
                     livesText.text = "Lives: " .. lives
                     if (phase == "did") then
-                        print("gfdgf")
-                        composer.setVariable("scorex", score)
-                        Runtime:removeEventListener("enterFrame", gameLoop)
-                        composer.gotoScene("gameover")
+
 
                     end
+                   Runtime:removeEventListener("enterFrame", checkEnemies)
+                    timer.cancel(myTimer2)
+                    composer.setVariable("scorex", score)
+                    Runtime:removeEventListener("touch", movePlayer)
+                    Runtime:removeEventListener("enterFrame", gameLoop )
+                    Runtime:removeEventListener("collision", onCollision)
+                    Runtime:removeEventListener("collision", onCollisionE)
+                    composer.removeScene("game2")
+                    collectgarbage()
+                    composer.gotoScene("gameover")
+                    --composer.showOverlay("menu")
+                    display.remove(player)
                       --timer.cancel(myTimer2)
 
                     --clearArrays()
@@ -387,87 +496,7 @@ function scene:create(event)
         end
     end
 
-    -- Функция обновления пуль
-    local function updateBullets()
-        for i = #bullets, 1, -1 do
-            local bullet = bullets[i]
-            bullet.y = bullet.y - 10 -- двигаем пулю ввер
 
-            if (bullet.y < -20) then
-                display.remove(bullet)
-                table.remove(bullets, i)
-            end
-
-        end
-    end
-
-    local function updateBulletsE()
-        for i = #bulletsE, 1, -1 do
-            local bulletE = bulletsE[i]
-            bulletE.y = bulletE.y + 2 -- двигаем пулю вниз
-            if (bulletE.y < 20) then
-                display.remove(bulletE)
-                table.remove(bulletsE, i)
-            end
-        end
-    end
-
-
-
-
-    -- Функция обновления инопланетных кораблей
-    local function updateEnemies()
-        for i = #enemies, 1, -1 do
-            local enemy = enemies[i]
-            --if (enemyMoveDown) then
-            --enemy.y = enemy.y + 10
-            --end
-            enemy.x = enemy.x + math.sin(enemy.y * 0.05)  -- двигаем корабль вправо-влево
-            enemy.y = enemy.y + 0.1 -- двигаем корабль вниз
-            if (enemy.y > display.contentHeight + 50) then
-                display.remove(enemy)
-                table.remove(enemies, i)
-                lives = lives - 1 -- уменьшаем количество жизней игрока при пропуске корабля
-                livesText.text = "Lives: " .. lives
-                if (lives <= 0) then
-                    if (phase == "did") then
-                        timer.cancel(myTimer2)
-                        composer.setVariable("scorex", score)
-                        Runtime:removeEventListener("enterFrame", gameLoop)
-                        Runtime:removeEventListener("touch", movePlayer)
-                        composer.removeScene("game2")
-                        composer.gotoScene("gameover")
-
-                    end
-
-
-                    --player.isAlive = false -- игрок погиб
-                    -- здесь может быть код для окончания игры
-                end
-            end
-        end
-    end
-
-    -- Функция обновления игры
-    local function gameLoop()
-        if (player.isAlive) then
-            updateBullets()
-            updateBulletsE()
-            updateEnemies()
-        end
-    end
-
-    -- Функция выпуска пуль
-    local function onFire()
-        if math.random(1, 100) <= 40 then -- вероятность выстрела = 40%
-            createBulletE(enemy) -- запускаем выстрел для данного врага
-        end
-        if (player.isAlive) then
-            timer.performWithDelay(250,createBullet(),1)
-            --timer.performWithDelay(250,createBulletE(),1)
-        end
-    end
-    local myTimer2 = timer.performWithDelay(550,onFire,0)
 
 
     -- Функция инициализации игры
@@ -487,21 +516,24 @@ function scene:create(event)
        if #enemies == 0 then -- если количество врагов равно нулю
            if lives <= 0 then
                timer.cancel(myTimer2)
-               Runtime:addEventListener("enterFrame", checkEnemies)
+               Runtime:removeEventListener("enterFrame", checkEnemies)
                composer.setVariable("scorex", score)
                Runtime:removeEventListener("enterFrame", gameLoop)
                composer.gotoScene("gameover")
 
            end
             if  lives > 0 then
-                Runtime:addEventListener("enterFrame", checkEnemies)
+                Runtime:removeEventListener("enterFrame", checkEnemies)
                 timer.cancel(myTimer2)
                 composer.setVariable("scorex", score)
                 Runtime:removeEventListener("touch", movePlayer)
                 Runtime:removeEventListener("enterFrame", gameLoop)
                  Runtime:removeEventListener("collision", onCollision)
                 Runtime:removeEventListener("collision", onCollisionE)
-                composer.gotoScene("gameover")
+                composer.removeScene("game2")
+                collectgarbage()
+                --composer.gotoScene("gameover")
+                --composer.showOverlay("menu")
                 display.remove(player)
                 end
         end

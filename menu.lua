@@ -57,9 +57,9 @@ function scene:show(event)
   local phase = event.phase
   if phase == "will" then
     self:create()
-    -- Здесь можно добавить код, который будет выполнен перед показом сцены
+
   elseif phase == "did" then
-    -- Здесь можно добавить код, который будет выполнен после показа сцены
+
   end
 end
 
@@ -74,7 +74,7 @@ end
 function scene:show(event)
   local phase = event.phase
   if phase == "will" then
-    -- Удаляем сцену "gameover", чтобы перейти на нее заново
+
   end
 end
 

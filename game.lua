@@ -188,198 +188,9 @@ function scene:create(event)
 
 
 
-    local function onCollision(event)
-        if (event.phase == "began") then
-            local obj1 = event.object1
-            local obj2 = event.object2
-            if ((obj1.isBullet and obj2.isBulletE) or (obj1.isBulletE and obj2.isBullet)) then
-                display.remove(obj1)
-                display.remove(obj2)
-                for i = #bullets, 1, -1 do
-                if (bullets[i] == obj1 or bullets[i] == obj2) then
-                    table.remove(bullets, i)
-                    break
-                end
-                end
-                for i = #bulletsE, 1, -1 do
-                if (bulletsE[i] == obj1 or bulletsE[i] == obj2) then
-                    table.remove(bulletsE, i)
-                    break
-                end
-                end
-            end
-            if ((obj1.isBullet and obj2.isEnemy) or (obj1.isEnemy and obj2.isBullet)) then
-                display.remove(obj1)
-                display.remove(obj2)
-                if (obj1.isEnemy) then
-                    removeEnemy(obj1)
-                elseif (obj2.isEnemy) then
-                    removeEnemy(obj2)
-                end
-                for i = #bullets, 1, -1 do
-                    if (bullets[i] == obj1 or bullets[i] == obj2) then
-                        table.remove(bullets, i)
-                        break
-                    end
-                end
-            elseif ((obj1.isPlayer and obj2.isEnemy) or (obj1.isEnemy and obj2.isPlayer)) then
-                lives = lives - 1 -- уменьшаем количество жизней игрока при пропуске корабля
-                livesText.text = "Lives: " .. lives
-                if (obj1.isPlayer and obj2.isEnemy) then
-                    removeEnemy(obj2)
-                    for j = #bulletsE, 1, -1 do if (bulletsE[j] == obj1) then
-                        table.remove(bulletsE, j)
-                        break
-                    end end
-                elseif (obj1.isEnemy and obj2.isPlayer) then
-                    removeEnemy(obj1)
-                    for j = #bulletsE, 1, -1 do if (bulletsE[j] == obj1) then
-                        table.remove(bulletsE, j)
-                        break
-                    end end
-                end
-                if (lives <= 0) then
-                    --player.isAlive = false -- игрок погиб
-                    --lives = 3
-                    livesText.text = "Lives: " .. lives
-                    if (phase == "did") then
-
-                        timer.cancel(myTimer)
-                        composer.setVariable("scorex", score)
-                        Runtime:removeEventListener("enterFrame", gameLoop)
-                        composer.gotoScene("gameover")
-                        display.remove(player)
-                    end
-                    --clearArrays()
-
-                    -- здесь может быть код для окончания игры
-                end
-            elseif (obj1.isBullet and obj2.isShield) then
-                display.remove(obj1)
-                for i = #bullets, 1, -1 do
-                    if (bullets[i] == obj1) then
-                        table.remove(bullets, i)
-                        break
-                    end
-                end
-                obj2.alpha = obj2.alpha - 0.1 -- уменьшаем прозрачность объекта защиты
-                if (obj2.alpha <= 0) then
-                    physics.removeBody(obj2) -- удаляем физическое тело объекта защиты
-                    display.remove(obj2) -- удаляем объект защиты
-                    for i = #shield, 1, -1 do
-                        if (shield[i] == obj2) then
-                            table.remove(shield, i)
-                            break
-                        end
-                    end
-                end
-            elseif (obj1.isShield and obj2.isBullet) then
-                display.remove(obj2)
-                for i = #bullets, 1, -1 do
-                    if (bullets[i] == obj2) then
-                        table.remove(bullets, i)
-                        break
-                    end
-                end
-                obj1.alpha = obj1.alpha - 0.1 -- уменьшаем прозрачность объекта защиты
-                if (obj1.alpha <= 0) then
-                    physics.removeBody(obj1) -- удаляем физическое тело объекта защиты
-                    display.remove(obj1) -- удаляем объект защиты
-                    for i = #shield, 1, -1 do
-                        if (shield[i] == obj1) then
-                            table.remove(shield, i)
-                            break
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    local function onCollisionE(event)
-        if (event.phase == "began") then
-            local obj1 = event.object1
-            local obj2 = event.object2
-            --if ((obj1.isBulletE and obj2.isPlayer) or (obj1.isPlayer and obj2.isBulletE)) then
-            --    display.remove(obj1)
-            --    display.remove(obj2)
-            --    for i = #bulletsE, 1, -1 do
-            --        if (bulletsE[i] == obj1 or bulletsE[i] == obj2) then
-            --            table.remove(bulletsE, i)
-            --            break
-            --        end
-            --    end
-            if ((obj1.isPlayer and obj2.isBulletE) or (obj1.isBulletE and obj2.isPlayer)) then
-                lives = lives - 1 -- уменьшаем количество жизней игрока при пропуске корабля
-                livesText.text = "Lives: " .. lives
-                if (obj1.isPlayer and obj2.isBulletE) then
-                    display.remove(obj2) for i = #bulletsE, 1, -1 do
-                    if (bulletsE[i] == obj2) then
-                        table.remove(bulletsE, i)
-                        break
-                    end
-                end
-                elseif (obj1.isBulletE and obj2.isPlayer) then
-                    display.remove(obj1) for i = #bulletsE, 1, -1 do
-                    if (bulletsE[i] == obj1) then
-                        table.remove(bulletsE, i)
-                        break
-                    end
-                end
-                end
-                if (lives <= 0) then
-                    --player.isAlive = false -- игрок погиб
-                    --lives = 3
-                    livesText.text = "Lives: " .. lives
-                    if (phase == "did") then
 
 
-                    end
-                    --clearArrays()
 
-                    -- здесь может быть код для окончания игры
-                end
-            elseif (obj1.isBulletE and obj2.isShield) then
-                display.remove(obj1)
-                for i = #bulletsE, 1, -1 do
-                    if (bulletsE[i] == obj1) then
-                        table.remove(bulletsE, i)
-                        break
-                    end
-                end
-                obj2.alpha = obj2.alpha - 0.1 -- уменьшаем прозрачность объекта защиты
-                if (obj2.alpha <= 0) then
-                    physics.removeBody(obj2) -- удаляем физическое тело объекта защиты
-                    display.remove(obj2) -- удаляем объект защиты
-                    for i = #shield, 1, -1 do
-                        if (shield[i] == obj2) then
-                            table.remove(shield, i)
-                            break
-                        end
-                    end
-                end
-            elseif (obj1.isShield and obj2.isBulletE) then
-                display.remove(obj2)
-                for i = #bulletsE, 1, -1 do
-                    if (bulletsE[i] == obj2) then
-                        table.remove(bulletsE, i)
-                        break
-                    end
-                end
-                obj1.alpha = obj1.alpha - 0.1 -- уменьшаем прозрачность объекта защиты
-                if (obj1.alpha <= 0) then
-                    physics.removeBody(obj1) -- удаляем физическое тело объекта защиты
-                    display.remove(obj1) -- удаляем объект защиты
-                    for i = #shield, 1, -1 do
-                        if (shield[i] == obj1) then
-                            table.remove(shield, i)
-                            break
-                        end
-                    end
-                end
-            end
-        end
-    end
     
     -- Функция обновления пуль
     local function updateBullets()
@@ -462,8 +273,219 @@ function scene:create(event)
             --timer.performWithDelay(250,createBulletE(),1)
         end
     end
-    local myTimer = timer.performWithDelay(550,onFire,0)
+    local myTimer = timer.performWithDelay(1000,onFire,0)
 
+    local function onCollision(event)
+        if (event.phase == "began") then
+            local obj1 = event.object1
+            local obj2 = event.object2
+            if ((obj1.isBullet and obj2.isBulletE) or (obj1.isBulletE and obj2.isBullet)) then
+                display.remove(obj1)
+                display.remove(obj2)
+                for i = #bullets, 1, -1 do
+                if (bullets[i] == obj1 or bullets[i] == obj2) then
+                    table.remove(bullets, i)
+                    break
+                end
+                end
+                for i = #bulletsE, 1, -1 do
+                if (bulletsE[i] == obj1 or bulletsE[i] == obj2) then
+                    table.remove(bulletsE, i)
+                    break
+                end
+                end
+            end
+            if ((obj1.isBullet and obj2.isEnemy) or (obj1.isEnemy and obj2.isBullet)) then
+                display.remove(obj1)
+                display.remove(obj2)
+                if (obj1.isEnemy) then
+                    removeEnemy(obj1)
+                elseif (obj2.isEnemy) then
+                    removeEnemy(obj2)
+                end
+                for i = #bullets, 1, -1 do
+                    if (bullets[i] == obj1 or bullets[i] == obj2) then
+                        table.remove(bullets, i)
+                        break
+                    end
+                end
+            elseif ((obj1.isPlayer and obj2.isEnemy) or (obj1.isEnemy and obj2.isPlayer)) then
+                lives = lives - 1 -- уменьшаем количество жизней игрока при пропуске корабля
+                livesText.text = "Lives: " .. lives
+                if (obj1.isPlayer and obj2.isEnemy) then
+                    removeEnemy(obj2)
+                    for j = #bulletsE, 1, -1 do if (bulletsE[j] == obj1) then
+                        table.remove(bulletsE, j)
+                        break
+                    end end
+                elseif (obj1.isEnemy and obj2.isPlayer) then
+                    removeEnemy(obj1)
+                    for j = #bulletsE, 1, -1 do if (bulletsE[j] == obj1) then
+                        table.remove(bulletsE, j)
+                        break
+                    end end
+                end
+                if (lives <= 0) then
+                    --player.isAlive = false -- игрок погиб
+                    --lives = 3
+                    livesText.text = "Lives: " .. lives
+                    if (phase == "did") then
+
+
+                    end
+                    --clearArrays()
+                    Runtime:removeEventListener("enterFrame", checkEnemies)
+                    timer.cancel(myTimer)
+                    composer.setVariable("scorex", score)
+                    Runtime:removeEventListener("touch", movePlayer)
+                    Runtime:removeEventListener("enterFrame", gameLoop)
+                    Runtime:removeEventListener("collision", onCollision)
+                    --Runtime:removeEventListener("collision", onCollisionE)
+                    composer.removeScene("game")
+                    collectgarbage()
+                    composer.gotoScene("gameover")
+                    --composer.showOverlay("menu")
+                    display.remove(player)
+
+                    -- здесь может быть код для окончания игры
+                end
+            elseif (obj1.isBullet and obj2.isShield) then
+                display.remove(obj1)
+                for i = #bullets, 1, -1 do
+                    if (bullets[i] == obj1) then
+                        table.remove(bullets, i)
+                        break
+                    end
+                end
+                obj2.alpha = obj2.alpha - 0.1 -- уменьшаем прозрачность объекта защиты
+                if (obj2.alpha <= 0) then
+                    physics.removeBody(obj2) -- удаляем физическое тело объекта защиты
+                    display.remove(obj2) -- удаляем объект защиты
+                    for i = #shield, 1, -1 do
+                        if (shield[i] == obj2) then
+                            table.remove(shield, i)
+                            break
+                        end
+                    end
+                end
+            elseif (obj1.isShield and obj2.isBullet) then
+                display.remove(obj2)
+                for i = #bullets, 1, -1 do
+                    if (bullets[i] == obj2) then
+                        table.remove(bullets, i)
+                        break
+                    end
+                end
+                obj1.alpha = obj1.alpha - 0.1 -- уменьшаем прозрачность объекта защиты
+                if (obj1.alpha <= 0) then
+                    physics.removeBody(obj1) -- удаляем физическое тело объекта защиты
+                    display.remove(obj1) -- удаляем объект защиты
+                    for i = #shield, 1, -1 do
+                        if (shield[i] == obj1) then
+                            table.remove(shield, i)
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    local function onCollisionE(event)
+            if (event.phase == "began") then
+                local obj1 = event.object1
+                local obj2 = event.object2
+                --if ((obj1.isBulletE and obj2.isPlayer) or (obj1.isPlayer and obj2.isBulletE)) then
+                --    display.remove(obj1)
+                --    display.remove(obj2)
+                --    for i = #bulletsE, 1, -1 do
+                --        if (bulletsE[i] == obj1 or bulletsE[i] == obj2) then
+                --            table.remove(bulletsE, i)
+                --            break
+                --        end
+                --    end
+                if ((obj1.isPlayer and obj2.isBulletE) or (obj1.isBulletE and obj2.isPlayer)) then
+                    lives = lives - 1 -- уменьшаем количество жизней игрока при пропуске корабля
+                    livesText.text = "Lives: " .. lives
+                    if (obj1.isPlayer and obj2.isBulletE) then
+                        display.remove(obj2) for i = #bulletsE, 1, -1 do
+                        if (bulletsE[i] == obj2) then
+                            table.remove(bulletsE, i)
+                            break
+                        end
+                    end
+                    elseif (obj1.isBulletE and obj2.isPlayer) then
+                        display.remove(obj1) for i = #bulletsE, 1, -1 do
+                        if (bulletsE[i] == obj1) then
+                            table.remove(bulletsE, i)
+                            break
+                        end
+                    end
+                    end
+                    if (lives <= 0) then
+                        --player.isAlive = false -- игрок погиб
+                        --lives = 3
+                        livesText.text = "Lives: " .. lives
+                        if (phase == "did") then
+
+
+                        end
+                        --clearArrays()
+                        Runtime:removeEventListener("enterFrame", checkEnemies)
+                        timer.cancel(myTimer)
+                        composer.setVariable("scorex", score)
+                        Runtime:removeEventListener("touch", movePlayer)
+                        Runtime:removeEventListener("enterFrame", gameLoop)
+                        Runtime:removeEventListener("collision", onCollision)
+                        --Runtime:removeEventListener("collision", onCollisionE)
+                        composer.removeScene("game")
+                        collectgarbage()
+                        composer.gotoScene("gameover")
+                        --composer.showOverlay("menu")
+                        display.remove(player)
+                        -- здесь может быть код для окончания игры
+                    end
+                elseif (obj1.isBulletE and obj2.isShield) then
+                    display.remove(obj1)
+                    for i = #bulletsE, 1, -1 do
+                        if (bulletsE[i] == obj1) then
+                            table.remove(bulletsE, i)
+                            break
+                        end
+                    end
+                    obj2.alpha = obj2.alpha - 0.1 -- уменьшаем прозрачность объекта защиты
+                    if (obj2.alpha <= 0) then
+                        physics.removeBody(obj2) -- удаляем физическое тело объекта защиты
+                        display.remove(obj2) -- удаляем объект защиты
+                        for i = #shield, 1, -1 do
+                            if (shield[i] == obj2) then
+                                table.remove(shield, i)
+                                break
+                            end
+                        end
+                    end
+                elseif (obj1.isShield and obj2.isBulletE) then
+                    display.remove(obj2)
+                    for i = #bulletsE, 1, -1 do
+                        if (bulletsE[i] == obj2) then
+                            table.remove(bulletsE, i)
+                            break
+                        end
+                    end
+                    obj1.alpha = obj1.alpha - 0.1 -- уменьшаем прозрачность объекта защиты
+                    if (obj1.alpha <= 0) then
+                        physics.removeBody(obj1) -- удаляем физическое тело объекта защиты
+                        display.remove(obj1) -- удаляем объект защиты
+                        for i = #shield, 1, -1 do
+                            if (shield[i] == obj1) then
+                                table.remove(shield, i)
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
 
     -- Функция инициализации игры
     local function initGame()
@@ -477,16 +499,23 @@ function scene:create(event)
     end
 
 
+
     local function checkEnemies()
 
         if #enemies == 0 then -- если количество врагов равно нулю
             if lives <= 0 then
-                Runtime:addEventListener("enterFrame", checkEnemies)
+                Runtime:removeEventListener("enterFrame", checkEnemies)
                 timer.cancel(myTimer)
                 composer.setVariable("scorex", score)
+                Runtime:removeEventListener("touch", movePlayer)
                 Runtime:removeEventListener("enterFrame", gameLoop)
-                --composer.gotoScene("gameover")
-
+                Runtime:removeEventListener("collision", onCollision)
+                Runtime:removeEventListener("collision", onCollisionE)
+                composer.removeScene("game")
+                collectgarbage()
+                composer.gotoScene("gameover")
+                --composer.showOverlay("menu")
+                display.remove(player)
             end
             if  lives > 0 then
             Runtime:removeEventListener("enterFrame", checkEnemies)
@@ -494,11 +523,17 @@ function scene:create(event)
             composer.setVariable("scorex", score)
             Runtime:removeEventListener("touch", movePlayer)
             Runtime:removeEventListener("enterFrame", gameLoop)
+            composer.removeScene("game")
+            collectgarbage()
             composer.gotoScene("game2")
+
             display.remove(player)
             end
         end
     end
+
+
+
 
     Runtime:addEventListener("enterFrame", checkEnemies)
 
