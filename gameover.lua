@@ -15,7 +15,7 @@ function scene:create(event)
     background.height = display.contentHeight
 
     -- Создание кнопок
-    local button1 = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY + 65, 100, 35)
+    local button1 = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY + 65, 200, 35)
     button1:setFillColor(1, 0.8, 0)
 
     -- Функция обработки события нажатия на кнопку

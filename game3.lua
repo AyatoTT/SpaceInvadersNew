@@ -48,7 +48,9 @@ function scene:create(event)
     background.height = display.contentHeight
     local score = composer.getVariable("scorex") -- очки игрока
     local lives = 3 -- количество жизней игрока
+    local livesboss = 10
     local livesText = display.newText(sceneGroup,"Lives: " .. lives, display.contentWidth - 80, 20, native.systemFont, 20)
+     local livesbossText = display.newText(sceneGroup,"Boss Lives: " .. livesboss, display.contentWidth , 20, native.systemFont, 20)
     livesText:setFillColor(1, 1, 1) -- установка цвета текста
     local scoreText = display.newText(sceneGroup,"Score: " .. score, 10, 20, native.systemFont, 18)
     local fireSound = audio.loadSound("fire.wav") -- звук выстрела
@@ -103,15 +105,15 @@ function scene:create(event)
 
     -- Функция создания инопланетных кораблей
     local function createEnemies()
-        for i = 1, 10 do
-            local enemy = display.newImageRect(sceneGroup,"enemy.png", 35, 35)
-            enemy.x = i * 60
-            enemy.y = 50
-            physics.addBody(enemy, "dynamic", { radius = 25 })
-            enemy.isEnemy = true
-            enemy.gravityScale = 0
-            table.insert(enemies, enemy)
-        end
+
+            local enemy2 = display.newImageRect(sceneGroup,"enemy.png", 35, 35)
+            enemy2.x = 100
+            enemy2.y = 50
+            physics.addBody(enemy2, "dynamic", { radius = 25 })
+            enemy2.isenemy2 = true
+            enemy2.gravityScale = 0
+            table.insert(enemies, enemy2)
+
     end
 
 
@@ -144,10 +146,10 @@ function scene:create(event)
 
     local function createBulletE()
         for i = 1, #enemies do
-            local enemy = enemies[i]
+            local enemy2 = enemies[i]
             local bulletE = display.newImageRect(sceneGroup,"bulletE.png", 10, 20)
-            bulletE.x = enemy.x
-            bulletE.y = enemy.y + 50
+            bulletE.x = enemy2.x
+            bulletE.y = enemy2.y + 50
             bulletE.isBulletE = true
             physics.addBody(bulletE, "dynamic")
             bulletE.gravityScale = 0
@@ -160,9 +162,9 @@ function scene:create(event)
 
 
     -- Функция обработки столкновения
-    local function removeEnemy(enemy)
+    local function removeenemy2(enemy2)
         for i = #enemies, 1, -1 do
-            if (enemies[i] == enemy) then
+            if (enemies[i] == enemy2) then
                 table.remove(enemies, i)
                 score = score + 10 -- увеличиваем очки игрока при уничтожении корабля
                 scoreText.text = "Score: " .. score
@@ -170,12 +172,12 @@ function scene:create(event)
                 break
             end
         end
-        display.remove(enemy)
+        display.remove(enemy2)
     end
 
     local function removeEnemyBullet(bulletE)
         for i = #bulletE, 1, -1 do
-            if (bulletE[i] == enemy) then
+            if (bulletE[i] == enemy2) then
                 table.remove(bulletE, i)
                 score = score - 10 -- увеличиваем очки игрока при уничтожении корабля
                 scoreText.text = "Score: " .. score
@@ -223,14 +225,14 @@ function scene:create(event)
     -- Функция обновления инопланетных кораблей
     local function updateEnemies()
         for i = #enemies, 1, -1 do
-            local enemy = enemies[i]
-            --if (enemyMoveDown) then
-            --enemy.y = enemy.y + 10
+            local enemy2 = enemies[i]
+            --if (enemy2MoveDown) then
+            --enemy2.y = enemy2.y + 10
             --end
-            enemy.x = enemy.x + math.sin(enemy.y * 0.05)  -- двигаем корабль вправо-влево
-            enemy.y = enemy.y + 0.1 -- двигаем корабль вниз
-            if (enemy.y > display.contentHeight + 50) then
-                display.remove(enemy)
+            enemy2.x = enemy2.x + math.sin(enemy2.y * 0.05)  -- двигаем корабль вправо-влево
+            enemy2.y = enemy2.y + 0.00001 -- двигаем корабль вниз
+            if (enemy2.y > display.contentHeight + 50) then
+                display.remove(enemy2)
                 table.remove(enemies, i)
                 lives = lives - 1 -- уменьшаем количество жизней игрока при пропуске корабля
                 livesText.text = "Lives: " .. lives
@@ -270,7 +272,7 @@ function scene:create(event)
     -- Функция выпуска пуль
     local function onFire()
         if math.random(1, 100) <= 40 then -- вероятность выстрела = 40%
-            createBulletE(enemy) -- запускаем выстрел для данного врага
+            createBulletE(enemy2) -- запускаем выстрел для данного врага
         end
         if (player.isAlive) then
             timer.performWithDelay(250,createBullet(),1)
@@ -299,31 +301,43 @@ function scene:create(event)
                 end
                 end
             end
-            if ((obj1.isBullet and obj2.isEnemy) or (obj1.isEnemy and obj2.isBullet)) then
-                display.remove(obj1)
-                display.remove(obj2)
-                if (obj1.isEnemy) then
-                    removeEnemy(obj1)
-                elseif (obj2.isEnemy) then
-                    removeEnemy(obj2)
+            if ((obj1.isBullet and obj2.isenemy2) or (obj1.isenemy2 and obj2.isBullet)) then
+                if obj1.isenemy2 then
+                    livesboss = livesboss - 1
+                    livesbossText.text = "Boss Lives: " .. livesboss
+                    display.remove(obj2)
+
+                elseif obj2.isenemy2 then
+                    livesboss = livesboss - 1
+                    livesbossText.text = "Boss Lives: " .. livesboss
+                    display.remove(obj1)
                 end
+
                 for i = #bullets, 1, -1 do
                     if (bullets[i] == obj1 or bullets[i] == obj2) then
                         table.remove(bullets, i)
                         break
                     end
                 end
-            elseif ((obj1.isPlayer and obj2.isEnemy) or (obj1.isEnemy and obj2.isPlayer)) then
+
+                -- удаляем врага, если его жизни опустились до нуля
+                if obj2.isenemy2 and livesboss <= 0 then
+                        removeenemy2(obj2)
+                end
+                if obj1.isenemy2 and livesboss <= 0 then
+                        removeenemy2(obj1)
+                end
+            elseif ((obj1.isPlayer and obj2.isenemy2) or (obj1.isenemy2 and obj2.isPlayer)) then
                 lives = lives - 1 -- уменьшаем количество жизней игрока при пропуске корабля
                 livesText.text = "Lives: " .. lives
-                if (obj1.isPlayer and obj2.isEnemy) then
-                    removeEnemy(obj2)
+                if (obj1.isPlayer and obj2.isenemy2) then
+                    removeenemy2(obj2)
                     for j = #bulletsE, 1, -1 do if (bulletsE[j] == obj1) then
                         table.remove(bulletsE, j)
                         break
                     end end
-                elseif (obj1.isEnemy and obj2.isPlayer) then
-                    removeEnemy(obj1)
+                elseif (obj1.isenemy2 and obj2.isPlayer) then
+                    removeenemy2(obj1)
                     for j = #bulletsE, 1, -1 do if (bulletsE[j] == obj1) then
                         table.remove(bulletsE, j)
                         break

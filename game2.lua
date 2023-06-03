@@ -240,7 +240,7 @@ function scene:create(event)
 
                     end
                     Runtime:removeEventListener("enterFrame", checkEnemies)
-                    --timer.cancel(myTimer2)
+                    timer.cancel(myTimer2)
                     composer.setVariable("scorex", score)
                     Runtime:removeEventListener("touch", movePlayer)
                     Runtime:removeEventListener("enterFrame", gameLoop)
@@ -448,7 +448,7 @@ function scene:create(event)
                     composer.gotoScene("gameover")
                     --composer.showOverlay("menu")
                     display.remove(player)
-                      --timer.cancel(myTimer2)
+                    --timer.cancel(myTimer2)
 
                     --clearArrays()
 
