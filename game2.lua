@@ -436,19 +436,18 @@ function scene:create(event)
 
 
                     end
-                   Runtime:removeEventListener("enterFrame", checkEnemies)
+                    Runtime:removeEventListener("enterFrame", checkEnemies)
                     timer.cancel(myTimer2)
                     composer.setVariable("scorex", score)
                     Runtime:removeEventListener("touch", movePlayer)
-                    Runtime:removeEventListener("enterFrame", gameLoop )
-                    Runtime:removeEventListener("collision", onCollision)
+                    Runtime:removeEventListener("enterFrame", gameLoop)
+                     Runtime:removeEventListener("collision", onCollision)
                     Runtime:removeEventListener("collision", onCollisionE)
                     composer.removeScene("game2")
                     collectgarbage()
                     composer.gotoScene("gameover")
                     --composer.showOverlay("menu")
                     display.remove(player)
-                    --timer.cancel(myTimer2)
 
                     --clearArrays()
 

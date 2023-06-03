@@ -49,8 +49,8 @@ function scene:create(event)
     local score = composer.getVariable("scorex") -- очки игрока
     local lives = 3 -- количество жизней игрока
     local livesboss = 10
-    local livesText = display.newText(sceneGroup,"Lives: " .. lives, display.contentWidth - 80, 20, native.systemFont, 20)
-     local livesbossText = display.newText(sceneGroup,"Boss Lives: " .. livesboss, display.contentWidth , 20, native.systemFont, 20)
+    local livesText = display.newText(sceneGroup,"Lives: " .. lives, display.contentWidth - 100, 20, native.systemFont, 20)
+     local livesbossText = display.newText(sceneGroup,"Boss Lives: " .. livesboss, display.contentWidth + 15, 20, native.systemFont, 20)
     livesText:setFillColor(1, 1, 1) -- установка цвета текста
     local scoreText = display.newText(sceneGroup,"Score: " .. score, 10, 20, native.systemFont, 18)
     local fireSound = audio.loadSound("fire.wav") -- звук выстрела
@@ -93,7 +93,7 @@ function scene:create(event)
 
     -- Функция создания игрока
     local function createPlayer()
-        player = display.newImageRect(sceneGroup,"player.png", 50, 50)
+        player = display.newImageRect(sceneGroup,"player.png", 35, 35)
         player.x = display.contentCenterX
         player.y = display.contentHeight - 50 -- начальные координаты игрока
         player.isAlive = true -- флаг, указывающий, жив ли игрок
@@ -106,7 +106,7 @@ function scene:create(event)
     -- Функция создания инопланетных кораблей
     local function createEnemies()
 
-            local enemy2 = display.newImageRect(sceneGroup,"boss.png", 35, 35)
+            local enemy2 = display.newImageRect(sceneGroup,"boss.png", 50, 50)
             enemy2.x = 100
             enemy2.y = 50
             physics.addBody(enemy2, "dynamic", { radius = 25 })
@@ -222,6 +222,8 @@ function scene:create(event)
 
 
 
+
+
     -- Функция обновления инопланетных кораблей
     local function updateEnemies()
         for i = #enemies, 1, -1 do
@@ -229,8 +231,16 @@ function scene:create(event)
             --if (enemy2MoveDown) then
             --enemy2.y = enemy2.y + 10
             --end
-            enemy2.x = enemy2.x + math.sin(enemy2.y * 0.05)  -- двигаем корабль вправо-влево
-            enemy2.y = enemy2.y + 0.00001 -- двигаем корабль вниз
+            enemy2.x = (enemy2.x + math.sin(enemy2.y * 0.05))  -- двигаем корабль вправо-влево
+            enemy2.y = enemy2.y + 0.01-- двигаем корабль вниз
+
+
+
+
+
+
+
+
             if (enemy2.y > display.contentHeight + 50) then
                 display.remove(enemy2)
                 table.remove(enemies, i)
@@ -275,6 +285,7 @@ function scene:create(event)
             createBulletE(enemy2) -- запускаем выстрел для данного врага
         end
         if (player.isAlive) then
+
             timer.performWithDelay(250,createBullet(),1)
             timer.performWithDelay(250,createBulletE(),1)
         end
@@ -546,7 +557,7 @@ function scene:create(event)
                 Runtime:removeEventListener("collision", onCollisionE)
                 composer.removeScene("game3")
                 collectgarbage()
-                --composer.gotoScene("game3")
+                composer.gotoScene("win")
                 --composer.showOverlay("menu")
                 display.remove(player)
                 end

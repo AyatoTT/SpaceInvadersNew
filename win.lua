@@ -1,6 +1,6 @@
 local composer = require("composer")
 
-local scene = composer.newScene("gameover")
+local scene = composer.newScene("win")
 
 
 
@@ -22,17 +22,17 @@ function scene:create(event)
       local function onButtonTap(event)
         if event.target == button1 then
             composer.gotoScene("menu", { effect = "fade", time = 500 })
-            composer.removeScene("gameover")
+            composer.removeScene("win")
 
         end
     end
 
     local score2 = composer.getVariable("scorex") -- очки игрока
     -- Создание текста для кнопок
-    local buttonText1 = display.newText( sceneGroup,"Начать заново", display.contentCenterX , display.contentCenterY + 65, native.systemFont, 24)
+    local buttonText1 = display.newText( sceneGroup,"В главное меню", display.contentCenterX , display.contentCenterY + 65, native.systemFont, 24)
     buttonText1:setFillColor(1, 1, 0)
     local score2 = composer.getVariable("scorex") -- очки игрока
-    local text1 = display.newText(sceneGroup, "Вы проиграли", display.contentCenterX + 15, display.contentCenterY - 10 , native.systemFont, 24)
+    local text1 = display.newText(sceneGroup, "Вы Победили", display.contentCenterX , display.contentCenterY - 10 , native.systemFont, 24)
     text1:setFillColor(1, 1, 1)
     local textScore = display.newText( sceneGroup,"Счёт:", display.contentCenterX - 15, display.contentCenterY + 30, native.systemFont, 24)
     textScore:setFillColor(1, 1, 1)
