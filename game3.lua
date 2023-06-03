@@ -93,7 +93,7 @@ function scene:create(event)
 
     -- Функция создания игрока
     local function createPlayer()
-        player = display.newImageRect(sceneGroup,"player.png", 35, 35)
+        player = display.newImageRect(sceneGroup,"player.png", 50, 50)
         player.x = display.contentCenterX
         player.y = display.contentHeight - 50 -- начальные координаты игрока
         player.isAlive = true -- флаг, указывающий, жив ли игрок
@@ -106,7 +106,7 @@ function scene:create(event)
     -- Функция создания инопланетных кораблей
     local function createEnemies()
 
-            local enemy2 = display.newImageRect(sceneGroup,"enemy.png", 35, 35)
+            local enemy2 = display.newImageRect(sceneGroup,"boss.png", 35, 35)
             enemy2.x = 100
             enemy2.y = 50
             physics.addBody(enemy2, "dynamic", { radius = 25 })
